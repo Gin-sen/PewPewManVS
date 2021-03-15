@@ -37,6 +37,8 @@ If you make changes in the code afterward, use `make re` to remove old binaries 
 
 Run the game with the command `./BombermanVS`.
 
+<!--
+
 # Run game on Windows(Docker only)
 Remark : You can run the game localy but you hame to use Cygwin and stuff to compile using Windows-compatible libraries.
 ## Docker build
@@ -57,7 +59,7 @@ Open a new terminal in the displayed desktop on your browser, go to folder `/usr
 
 Exit the game with `Esc` key at any point or click on the `Close Window` button.
 
-
+-->
 
 # How to play
 Escape = Exit;
