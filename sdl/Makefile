@@ -1,4 +1,4 @@
-NAME	=	BombermanVS
+NAME	=	./BombermanVS
 CC	=	gcc -g -Wall -Wextra -Werror -std=c17 $(shell pkg-config --cflags --libs sdl2) -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 RM	=	rm -f
 SRC	=	./src/game.c \
@@ -14,6 +14,7 @@ nolib:					$(OBJ)
 withmylibstat:					$(OBJ)
 						make -f ./MakeMyLib fclean my_lib_static
 					$(CC) ./main.c $(OBJ) $(LFLAGS) -Iinclude -o $(NAME) $(shell pkg-config --cflags --libs sdl2) -lSDL2_image
+					$(NAME)
 clean:
 					$(RM) $(OBJ)
 

@@ -1,7 +1,7 @@
 #include "../include/menu.h"
 
 
-void update_menu_events(stGame *game, SDL_Event event, Mix_Chunk *bip)
+void update_menu_events(stGame *game, SDL_Event event, Mix_Chunk **bip)
 {
     const Uint8 *keyboard_state_array = SDL_GetKeyboardState(NULL);
     // if (game->input_delay > 0){
@@ -9,24 +9,24 @@ void update_menu_events(stGame *game, SDL_Event event, Mix_Chunk *bip)
     // }
 	
 	if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) // (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) && game->input_delay == 0
-    {   
+    {
         //game->input_delay = 4;
-        if (keyboard_state_array[SDL_SCANCODE_UP] || keyboard_state_array[SDL_SCANCODE_LEFT])
-        {
-            if (game->game_mode > 0){
+        if (keyboard_state_array[SDL_SCANCODE_UP] || keyboard_state_array[SDL_SCANCODE_LEFT]) {
+            if (game->game_mode > 0) {
                 game->game_mode = game->game_mode - 1;
-                Mix_PlayChannel(-1, bip, 0);
+                Mix_PlayChannel(-1, bip[0], 0);
             }
         }
-        if (keyboard_state_array[SDL_SCANCODE_DOWN] || keyboard_state_array[SDL_SCANCODE_RIGHT])
-        {
-            if (game->game_mode < 3){
+        if (keyboard_state_array[SDL_SCANCODE_DOWN] || keyboard_state_array[SDL_SCANCODE_RIGHT]) {
+            if (game->game_mode < 3) {
                 game->game_mode = game->game_mode + 1;
-                Mix_PlayChannel(-1, bip, 0);
+                Mix_PlayChannel(-1, bip[0], 0);
             }
         }
-        if (keyboard_state_array[SDL_SCANCODE_SPACE] || keyboard_state_array[SDL_SCANCODE_RETURN])
+        if (keyboard_state_array[SDL_SCANCODE_SPACE] || keyboard_state_array[SDL_SCANCODE_RETURN]){
             game->actionKeyPressed = TRUE;
+            Mix_PlayChannel(-1, bip[0], 0);
+        }
         if (keyboard_state_array[SDL_SCANCODE_ESCAPE] || event.type == SDL_QUIT){
             game->game_mode = 4;
             game->should_run = FALSE;
@@ -149,7 +149,7 @@ char *random_menu_music(){
 void menu(stGame *game){
     SDL_Event event;
     Mix_Music *musique;
-    Mix_Chunk *bip;
+    Mix_Chunk *bips[2];
     //Mix_Chunk *boup;
 
     // Init menu data + ttf logic
@@ -163,9 +163,11 @@ void menu(stGame *game){
     Mix_AllocateChannels(32);
     musique = Mix_LoadMUS(random_menu_music());
     Mix_PlayMusic(musique, -1); //Jouer infiniment la musique
-    bip = Mix_LoadWAV("./res/sounds/sfx_menu_move4.wav");
-    Mix_VolumeChunk(bip, MIX_MAX_VOLUME/2);
-    
+    bips[0] = Mix_LoadWAV("./res/sounds/sfx_menu_move4.wav");
+    bips[1] = Mix_LoadWAV("./res/sounds/sfx_menu_move4.wav");
+    Mix_VolumeChunk(bips[0], MIX_MAX_VOLUME/2);
+    Mix_VolumeChunk(bips[1], MIX_MAX_VOLUME/2);
+
     // Boucle d'event et d'affichage
     draw_menu(game);
     while(game->should_run == TRUE){
@@ -173,7 +175,7 @@ void menu(stGame *game){
         unsigned int lasttime = SDL_GetTicks();
 
         while(SDL_PollEvent(&event)){
-            update_menu_events(game, event, bip);
+            update_menu_events(game, event, bips);
         }
 
         draw_menu(game);
@@ -190,6 +192,7 @@ void menu(stGame *game){
     }
     printf("Unloading music\n");
     Mix_FreeMusic(musique);
-    Mix_FreeChunk(bip);
+    Mix_FreeChunk(bips[0]);
+    Mix_FreeChunk(bips[1]);
     printf("gracefully exiting menu : game mode = %d", game->game_mode);
 }

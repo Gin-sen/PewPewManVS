@@ -50,7 +50,7 @@ docker.exe build -t test_container .
 ## Docker run 
 
 ```ps1
-docker.exe run -it --rm -p 6080:80 --device /dev/snd test_container
+docker.exe run -it --rm -p 6080:80 test_container
 ```
 Go to [http://127.0.0.1:6080//#/?video](http://127.0.0.1:6080//#/?video) in your web browser.
 

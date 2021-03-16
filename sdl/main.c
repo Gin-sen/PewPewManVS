@@ -165,11 +165,6 @@ int main(void){
 
     while(game->should_run){
         menu(game);
-        if (!game){
-            printf("Error in menu\n");
-            game->should_run = FALSE;
-            break;
-        }
 
         switch (game->game_mode){
             case 0:

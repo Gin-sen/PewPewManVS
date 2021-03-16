@@ -1,0 +1,6 @@
+/.idea
+/.vs
+/BombermanVS
+/src/*.o
+/lib/*.a
+/lib/*.so
