@@ -139,7 +139,7 @@ void draw_menu(stGame *game){
 }
 
 char *random_menu_music(){
-    if((rand()*100) > 50){
+    if((rand()*100) > 50){ // NOLINT(cert-msc50-cpp)
         return "./res/musics/pokemon-tcg-ost-club-master-battle-2020-stereo-mix.mp3";
     } else {
         return "./res/musics/pokemon-tcg-ost-water-rock-psychic-clubs-2020-stereo-mix.mp3";
