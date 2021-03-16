@@ -171,9 +171,11 @@ void menu(stGame *game){
     while(game->should_run == TRUE){
         unsigned int elapsed;
         unsigned int lasttime = SDL_GetTicks();
-        SDL_PollEvent(&event);
 
-        update_menu_events(game, event, bip);
+        while(SDL_PollEvent(&event)){
+            update_menu_events(game, event, bip);
+        }
+
         draw_menu(game);
 
         elapsed = SDL_GetTicks() - lasttime;

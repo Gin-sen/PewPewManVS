@@ -39,8 +39,8 @@ Run the game with the command `./BombermanVS`.
 
 <!--
 
-# Run game on Windows(Docker only)
-Remark : You can run the game localy but you hame to use Cygwin and stuff to compile using Windows-compatible libraries.
+# Run game on Windows (Docker only, no sound)
+Remark : You can run the game localy but you have to use Cygwin and stuff to compile using Windows-compatible libraries.
 ## Docker build
 
 ```ps1
