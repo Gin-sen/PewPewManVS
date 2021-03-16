@@ -164,7 +164,7 @@ void menu(stGame *game){
     musique = Mix_LoadMUS(random_menu_music());
     Mix_PlayMusic(musique, -1); //Jouer infiniment la musique
     bips[0] = Mix_LoadWAV("./res/sounds/sfx_menu_move4.wav");
-    bips[1] = Mix_LoadWAV("./res/sounds/sfx_menu_move4.wav");
+    bips[1] = Mix_LoadWAV("./res/sounds/sfx_coin_cluster3.wav");
     Mix_VolumeChunk(bips[0], MIX_MAX_VOLUME/2);
     Mix_VolumeChunk(bips[1], MIX_MAX_VOLUME/2);
 
