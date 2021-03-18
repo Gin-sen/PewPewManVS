@@ -1,6 +1,11 @@
 #include "../include/menu.h"
 
-
+/**
+ *
+ * @param game
+ * @param event
+ * @param bip
+ */
 void update_menu_events(stGame *game, SDL_Event event, Mix_Chunk **bip)
 {
     while (SDL_PollEvent(&event)){
@@ -47,6 +52,13 @@ void update_menu_events(stGame *game, SDL_Event event, Mix_Chunk **bip)
     }
 }
 
+/**
+ *
+ * @param game
+ * @param text_color
+ * @param is_bold
+ * @return
+ */
 BOOL generate_text_texture(stGame *game, SDL_Color text_color, BOOL is_bold){
     if(is_bold)
         TTF_SetFontStyle(game->pFont, TTF_STYLE_BOLD);
@@ -66,6 +78,11 @@ BOOL generate_text_texture(stGame *game, SDL_Color text_color, BOOL is_bold){
     return TRUE;
 }
 
+/**
+ *
+ * @param game
+ * @return
+ */
 BOOL menu_init(stGame *game){
     // Nettoie l'écran
     SDL_SetRenderDrawColor(game->pRenderer, 0, 0, 0, 255);
@@ -119,7 +136,10 @@ BOOL menu_init(stGame *game){
     printf("Menu init OK\n");
     return TRUE;
 }
-
+/**
+ *
+ * @param game
+ */
 void draw_menu(stGame *game){
     SDL_Rect textBox[4];
     SDL_Rect cursorBox;
@@ -156,6 +176,10 @@ void draw_menu(stGame *game){
     SDL_RenderPresent(game->pRenderer);
 }
 
+/**
+ *
+ * @return
+ */
 char *random_menu_music(){
     if((rand()*100) > 50){ // NOLINT(cert-msc50-cpp)
         return "./res/musics/pokemon-tcg-ost-club-master-battle-2020-stereo-mix.mp3";
@@ -163,7 +187,10 @@ char *random_menu_music(){
         return "./res/musics/pokemon-tcg-ost-water-rock-psychic-clubs-2020-stereo-mix.mp3";
     }
 }
-
+/**
+ *
+ * @param game
+ */
 void menu(stGame *game){
     unsigned int elapsed;
     unsigned int lasttime;
