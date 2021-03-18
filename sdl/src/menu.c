@@ -3,35 +3,67 @@
 
 void update_menu_events(stGame *game, SDL_Event event, Mix_Chunk **bip)
 {
-    const Uint8 *keyboard_state_array = SDL_GetKeyboardState(NULL);
-    // if (game->input_delay > 0){
-    //     game->input_delay--;
-    // }
-	
-	if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) // (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) && game->input_delay == 0
-    {
-        //game->input_delay = 4;
-        if (keyboard_state_array[SDL_SCANCODE_UP] || keyboard_state_array[SDL_SCANCODE_LEFT]) {
-            if (game->game_mode > 0) {
-                game->game_mode = game->game_mode - 1;
-                Mix_PlayChannel(-1, bip[0], 0);
-            }
+    while (SDL_PollEvent(&event)){
+        switch (event.type) {
+            case SDL_QUIT:
+                game->should_run = FALSE;
+                break;
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.scancode) {
+                    case SDL_SCANCODE_UP:
+                    case SDL_SCANCODE_Z:
+                    case SDL_SCANCODE_LEFT:
+                    case SDL_SCANCODE_Q:
+                        if (game->game_mode > 0) {
+                            game->game_mode = game->game_mode - 1;
+                            Mix_PlayChannel(-1, bip[0], 0);
+                        }
+                        break;
+                    case SDL_SCANCODE_DOWN:
+                    case SDL_SCANCODE_S:
+                    case SDL_SCANCODE_RIGHT:
+                    case SDL_SCANCODE_D:
+                        if (game->game_mode < 3) {
+                            game->game_mode = game->game_mode + 1;
+                            Mix_PlayChannel(-1, bip[0], 0);
+                        }
+                        break;
+                    case SDL_SCANCODE_ESCAPE:
+                        game->should_run = FALSE;
+                        break;
+                    case SDL_SCANCODE_RETURN:
+                    case SDL_SCANCODE_SPACE:
+                        game->actionKeyPressed = TRUE;
+                        break;
+                    case SDL_SCANCODE_UNKNOWN:
+                        printf("Scancode unknown %s\n", SDL_GetError());
+                        game->should_run = FALSE;
+                        break;
+                    default:
+                        break;
+                }
+                break;
         }
-        if (keyboard_state_array[SDL_SCANCODE_DOWN] || keyboard_state_array[SDL_SCANCODE_RIGHT]) {
-            if (game->game_mode < 3) {
-                game->game_mode = game->game_mode + 1;
-                Mix_PlayChannel(-1, bip[0], 0);
-            }
+    }
+}
+
+BOOL generate_text_texture(stGame *game, SDL_Color text_color, BOOL is_bold){
+    if(is_bold)
+        TTF_SetFontStyle(game->pFont, TTF_STYLE_BOLD);
+
+    for (int i = 0; i < 4; i++){
+        SDL_Surface *temp = TTF_RenderText_Solid(game->pFont, game->text_menu[i], text_color);
+        if (!temp){
+            printf("Echec d'initialisation de surface : %s\n", SDL_GetError());
+            SDL_FreeSurface(temp);
+            return FALSE;
         }
-        if (keyboard_state_array[SDL_SCANCODE_SPACE] || keyboard_state_array[SDL_SCANCODE_RETURN]){
-            game->actionKeyPressed = TRUE;
-            Mix_PlayChannel(-1, bip[0], 0);
-        }
-        if (keyboard_state_array[SDL_SCANCODE_ESCAPE] || event.type == SDL_QUIT){
-            game->game_mode = 4;
-            game->should_run = FALSE;
-        }
-	}
+        game->pTextMenuBold[i] = SDL_CreateTextureFromSurface(game->pRenderer, temp);
+        SDL_FreeSurface(temp);
+    }
+    if(is_bold)
+        TTF_SetFontStyle(game->pFont, TTF_STYLE_NORMAL);
+    return TRUE;
 }
 
 BOOL menu_init(stGame *game){
@@ -74,29 +106,16 @@ BOOL menu_init(stGame *game){
     game->text_menu[2] = "Join Mulplayer Lobby";
     game->text_menu[3] = "Debug Mode";
     // Create Normal Text Texture 
-    for (int i = 0; i < 4; i++){
-        SDL_Surface *temp = TTF_RenderText_Solid(game->pFont, game->text_menu[i], text_color);
-        if (!temp){
-            printf("Echec d'initialisation de surface : %s\n", SDL_GetError());
-            SDL_FreeSurface(temp);
-            return FALSE;
-        }
-        game->pTextMenu[i] = SDL_CreateTextureFromSurface(game->pRenderer, temp);
-        SDL_FreeSurface(temp);
+    if (!generate_text_texture(game, text_color, FALSE)){
+        printf("Could not load normal text texture\n");
+        return FALSE;
     }
+
     // Create Bold Text Texture 
-    TTF_SetFontStyle(game->pFont, TTF_STYLE_BOLD);
-    for (int i = 0; i < 4; i++){
-        SDL_Surface *temp = TTF_RenderText_Solid(game->pFont, game->text_menu[i], text_color);
-        if (!temp){
-            printf("Echec d'initialisation de surface : %s\n", SDL_GetError());
-            SDL_FreeSurface(temp);
-            return FALSE;
-        }
-        game->pTextMenuBold[i] = SDL_CreateTextureFromSurface(game->pRenderer, temp);
-        SDL_FreeSurface(temp);
+    if (!generate_text_texture(game, text_color, TRUE)){
+        printf("Could not load bold text texture\n");
+        return FALSE;
     }
-    TTF_SetFontStyle(game->pFont, TTF_STYLE_NORMAL);
     printf("Menu init OK\n");
     return TRUE;
 }
@@ -111,7 +130,6 @@ void draw_menu(stGame *game){
     backBox.h = SCREEN_HEIGHT;
 
     // Nettoie l'écran
-    SDL_SetRenderDrawColor(game->pRenderer, 0, 0, 0, 255);
     SDL_RenderClear(game->pRenderer);
 
     // Ajoute le background
@@ -147,7 +165,8 @@ char *random_menu_music(){
 }
 
 void menu(stGame *game){
-    SDL_Event event;
+    unsigned int elapsed;
+    unsigned int lasttime;
     Mix_Music *musique;
     Mix_Chunk *bips[2];
     //Mix_Chunk *boup;
@@ -158,7 +177,7 @@ void menu(stGame *game){
         game->game_mode = 4;
         return;
     }
-    
+
     // Musique et sons
     Mix_AllocateChannels(32);
     musique = Mix_LoadMUS(random_menu_music());
@@ -170,29 +189,26 @@ void menu(stGame *game){
 
     // Boucle d'event et d'affichage
     draw_menu(game);
-    while(game->should_run == TRUE){
-        unsigned int elapsed;
-        unsigned int lasttime = SDL_GetTicks();
+    while(game->should_run == TRUE && game->actionKeyPressed == FALSE){
+        lasttime = SDL_GetTicks();
+        SDL_Event event;
 
-        while(SDL_PollEvent(&event)){
-            update_menu_events(game, event, bips);
-        }
+        update_menu_events(game, event, bips);
 
         draw_menu(game);
 
         elapsed = SDL_GetTicks() - lasttime;
         if (elapsed < 20)
             SDL_Delay(20-elapsed);
-
-        if (game->actionKeyPressed){
-            printf("Game mode selected : %d\n", game->game_mode);
-            game->actionKeyPressed = FALSE;
-            break;
-        }
     }
+    if (game->actionKeyPressed){
+        printf("Game mode selected\n");
+        game->actionKeyPressed = FALSE;
+    }
+
     printf("Unloading music\n");
     Mix_FreeMusic(musique);
     Mix_FreeChunk(bips[0]);
     Mix_FreeChunk(bips[1]);
-    printf("gracefully exiting menu : game mode = %d", game->game_mode);
+    printf("gracefully exiting menu : game mode = %d\n", game->game_mode);
 }

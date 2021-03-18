@@ -33,13 +33,14 @@ stGame *game_create(){
     return game;
 }
 
-
-// Init SDL et jeu
+/**
+ * Init SDL et jeu
+ * @return
+ */
 stGame *game_init(){
     stGame *game = game_create();
-
     // cumuler avec flag audio si implémenté
-    if (SDL_Init(SDL_INIT_VIDEO)){
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_EVENTS)){
         printf("Echec de l'initialisationde la SDL : %s\n", SDL_GetError());
         game_destroy(game);
         return NULL;
@@ -65,9 +66,8 @@ stGame *game_init(){
 
     // si création d'une window, on crée un renderer
     if (game->pWindow){
-        printf("mem Leak here \n"); //    mem leak
-        //game->pRenderer = SDL_CreateRenderer(game->pWindow, -1, SDL_RENDERER_ACCELERATED);
-        game->pRenderer = SDL_CreateRenderer(game->pWindow, -1, SDL_RENDERER_SOFTWARE);
+        Uint32 render_flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC; // SDL_RENDERER_SOFTWARE
+        game->pRenderer = SDL_CreateRenderer(game->pWindow, -1, render_flags);
         //si renderer échoue => erreur
         if (!game->pRenderer){
             printf("Impossible d'initialiser le renderer SDL : %s\n", SDL_GetError());
@@ -83,12 +83,17 @@ stGame *game_init(){
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1) //Initialisation de l'API Mixer
     {
         printf("%s", Mix_GetError());
+        game_destroy(game);
+        return NULL;
     }
 
     return game;
 }
 
-// Détruit le jeu puis la sdl
+/**
+ * Détruit le jeu puis la sdl
+ * @param game
+ */
 void game_destroy(stGame *game){
     if (game){
         if (game->pTextBackground) {
@@ -97,13 +102,13 @@ void game_destroy(stGame *game){
         if (game->pTextCursor) {
             SDL_DestroyTexture(game->pTextCursor);
         }
-        if (game->pTextMenu) {
-            for (int i = 0; i < 4; i++){
+        for (int i = 0; i < 4; i++){
+            if (game->pTextMenu[i]) {
                 SDL_DestroyTexture(game->pTextMenu[i]);
             }
         }
-        if (game->pTextMenuBold) {
-            for (int i = 0; i < 4; i++){
+        for (int i = 0; i < 4; i++){
+            if (game->pTextMenuBold[i]) {
                 SDL_DestroyTexture(game->pTextMenuBold[i]);
             }
         }

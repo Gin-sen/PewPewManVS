@@ -12,6 +12,7 @@
 // Menu
 
 void update_menu_events(stGame *game, SDL_Event event, Mix_Chunk **bip);
+BOOL generate_text_texture(stGame *game, SDL_Color text_color, BOOL is_bold);
 void draw_menu(stGame *game);
 BOOL menu_init(stGame *game);
 char *random_menu_music();
